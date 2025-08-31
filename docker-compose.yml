@@ -1,0 +1,20 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: samples/CompileCare.Caching.SampleApi/Dockerfile
+    ports:
+      - "5000:8080"
+    depends_on:
+      - redis
+    environment:
+      ASPNETCORE_ENVIRONMENT: "Development"
+    volumes:
+      - ./samples/CompileCare.Caching.SampleApi/appsettings.json:/app/appsettings.json
+
+  redis:
+    image: redis:7.2
+    container_name: compilecare_redis
+    ports:
+      - "6379:6379"
+    restart: always
