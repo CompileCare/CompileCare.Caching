@@ -57,7 +57,7 @@ app.MapGet("/forecast", async (HttpContext http, ICacheService cache, Cancellati
             }).ToList();
         },
         TimeSpan.FromSeconds(60),
-        token); 
+        token);
     http.Response.Headers["X-Cache"] = isMiss ? "MISS" : "HIT";
     return Results.Ok(result);
 });
