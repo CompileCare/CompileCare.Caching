@@ -1,5 +1,6 @@
-using CompileCare.Caching.Abstractions;
+﻿using CompileCare.Caching.Abstractions;
 using CompileCare.Caching.Extensions;
+using static System.Net.WebRequestMethods;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,12 +39,15 @@ var summaries = new[]
 
 app.MapGet("/", () => "CompileCare HybridCache Sample API running");
 
-app.MapGet("/forecast", async (ICacheService cache, CancellationToken token) =>
+app.MapGet("/forecast", async (HttpContext http, ICacheService cache, CancellationToken token) =>
 {
+    var cacheKey = "weather_forecast";
+    var isMiss = false;
     var result = await cache.GetOrCreateAsync(
-        "weather_forecast",
+        cacheKey,
         async ct =>
         {
+            isMiss = true;
             await Task.Delay(500, ct); // simulate expensive work
             return Enumerable.Range(1, 5).Select(i => new
             {
@@ -53,9 +57,17 @@ app.MapGet("/forecast", async (ICacheService cache, CancellationToken token) =>
             }).ToList();
         },
         TimeSpan.FromSeconds(60),
-        token);
-
+        token); 
+    http.Response.Headers["X-Cache"] = isMiss ? "MISS" : "HIT";
     return Results.Ok(result);
+});
+
+app.MapPost("/clear-cache", async (HttpContext http, ICacheService cacheService) =>
+{
+    var cacheKey = "weather_forecast";
+    await cacheService.RemoveAsync(cacheKey);
+    http.Response.Headers["X-Cache"] = "CLEARED";
+    return Results.Ok(new { Message = "Cache cleared" });
 });
 
 app.Run();

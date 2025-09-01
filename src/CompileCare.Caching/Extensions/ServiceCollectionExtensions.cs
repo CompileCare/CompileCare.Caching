@@ -11,10 +11,15 @@ namespace CompileCare.Caching.Extensions
         public static IServiceCollection AddCompileCareCaching(this IServiceCollection services, IConfiguration config)
         {
             var section = config.GetSection("CacheSettings");
-            var useRedis = Convert.ToBoolean(section["UseRedis"]);
-            var redisConnection = section["RedisConnection"];
-            var defaultExpiration = TimeSpan.FromSeconds(Convert.ToInt32(section["DefaultExpirationSeconds"], 300));
-            var localExpiration = TimeSpan.FromSeconds(Convert.ToInt32(section["LocalCacheExpirationSeconds"]), 200);
+
+            bool useRedis = section.GetValue<bool>("UseRedis");
+            string? redisConnection = section.GetValue<string>("RedisConnection");
+
+            TimeSpan defaultExpiration = TimeSpan.FromSeconds(
+                section.GetValue<int>("DefaultExpirationSeconds", 300));
+
+            TimeSpan localExpiration = TimeSpan.FromSeconds(
+                section.GetValue<int>("LocalCacheExpirationSeconds", 200));
 
             if (useRedis && !string.IsNullOrEmpty(redisConnection))
             {
