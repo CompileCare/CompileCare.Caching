@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 jobs:
-  build-test:
+  build-test-pack:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -23,3 +23,5 @@ jobs:
         run: dotnet build CompileCare.Caching.sln --configuration Release --no-restore
       - name: Test
         run: dotnet test CompileCare.Caching.sln --configuration Release --no-build
+      - name: Pack
+        run: dotnet pack src/CompileCare.Caching/CompileCare.Caching.csproj --configuration Release --no-build --output artifacts
