@@ -14,6 +14,28 @@ public sealed class CacheSettings
     public TimeSpan DefaultExpiration => TimeSpan.FromSeconds(DefaultExpirationSeconds);
     public TimeSpan LocalCacheExpiration => TimeSpan.FromSeconds(LocalCacheExpirationSeconds);
 
+    internal static IReadOnlyList<string> GetValidationErrors(CacheSettings settings)
+    {
+        var errors = new List<string>();
+
+        if (settings.DefaultExpirationSeconds <= 0)
+            errors.Add("Cache default expiration must be positive.");
+
+        if (settings.LocalCacheExpirationSeconds <= 0)
+            errors.Add("Cache local expiration must be positive.");
+
+        if (settings.LocalCacheExpirationSeconds > settings.DefaultExpirationSeconds)
+            errors.Add("Local cache expiration cannot exceed distributed cache expiration.");
+
+        if (settings.UseRedis && string.IsNullOrWhiteSpace(settings.RedisConnection))
+            errors.Add("RedisConnection is required when UseRedis is enabled.");
+
+        if (!IsValidKeyPrefix(settings.KeyPrefix))
+            errors.Add("Cache key prefix must contain 1-64 ASCII letters, digits, dots, underscores or hyphens.");
+
+        return errors;
+    }
+
     internal static bool IsValidKeyPrefix(string? prefix)
     {
         if (string.IsNullOrEmpty(prefix) || prefix.Length > 64)
