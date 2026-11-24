@@ -1,43 +1,56 @@
-﻿using CompileCare.Caching.Abstractions;
+using CompileCare.Caching.Abstractions;
 using CompileCare.Caching.Services;
 using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
-namespace CompileCare.Caching.Extensions
+namespace CompileCare.Caching.Extensions;
+
+public static class ServiceCollectionExtensions
 {
-    public static class ServiceCollectionExtensions
+    public static IServiceCollection AddCompileCareCaching(
+        this IServiceCollection services,
+        IConfiguration configuration)
     {
-        public static IServiceCollection AddCompileCareCaching(this IServiceCollection services, IConfiguration config)
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(configuration);
+
+        var section = configuration.GetSection(CacheSettings.SectionName);
+        services.AddOptions<CacheSettings>()
+            .Bind(section)
+            .Validate(settings => settings.DefaultExpiration > TimeSpan.Zero,
+                "Cache default expiration must be positive.")
+            .Validate(settings => settings.LocalCacheExpiration > TimeSpan.Zero,
+                "Cache local expiration must be positive.")
+            .Validate(settings => settings.LocalCacheExpiration <= settings.DefaultExpiration,
+                "Local cache expiration cannot exceed distributed cache expiration.")
+            .Validate(settings => !settings.UseRedis || !string.IsNullOrWhiteSpace(settings.RedisConnection),
+                "RedisConnection is required when UseRedis is enabled.")
+            .Validate(settings => CacheSettings.IsValidKeyPrefix(settings.KeyPrefix),
+                "Cache key prefix must contain 1-64 ASCII letters, digits, dots, underscores or hyphens.")
+            .ValidateOnStart();
+
+        var settings = section.Get<CacheSettings>() ?? new CacheSettings();
+        if (settings.UseRedis)
         {
-            var section = config.GetSection("CacheSettings");
+            if (string.IsNullOrWhiteSpace(settings.RedisConnection))
+                throw new InvalidOperationException("RedisConnection is required when UseRedis is enabled.");
 
-            bool useRedis = section.GetValue<bool>("UseRedis");
-            string? redisConnection = section.GetValue<string>("RedisConnection");
-
-            TimeSpan defaultExpiration = TimeSpan.FromSeconds(
-                section.GetValue<int>("DefaultExpirationSeconds", 300));
-
-            TimeSpan localExpiration = TimeSpan.FromSeconds(
-                section.GetValue<int>("LocalCacheExpirationSeconds", 200));
-
-            if (useRedis && !string.IsNullOrEmpty(redisConnection))
-            {
-                services.AddStackExchangeRedisCache(opt => opt.Configuration = redisConnection);
-            }
-
-            services.AddHybridCache(opt =>
-            {
-                opt.DefaultEntryOptions = new HybridCacheEntryOptions
-                {
-                    Expiration = defaultExpiration,
-                    LocalCacheExpiration = localExpiration
-                };
-            });
-
-            services.AddScoped<ICacheService, HybridCacheService>();
-
-            return services;
+            services.AddStackExchangeRedisCache(options =>
+                options.Configuration = settings.RedisConnection);
         }
+
+        services.AddHybridCache(options =>
+        {
+            options.DefaultEntryOptions = new HybridCacheEntryOptions
+            {
+                Expiration = settings.DefaultExpiration,
+                LocalCacheExpiration = settings.LocalCacheExpiration
+            };
+        });
+
+        services.AddScoped<ICacheService, HybridCacheService>();
+        return services;
     }
 }
