@@ -52,6 +52,18 @@ public sealed class HybridCacheServiceTests
     }
 
     [Fact]
+    public async Task GetAsync_AfterMissAndSet_ReturnsNewValue()
+    {
+        using var provider = CreateServiceProvider();
+        var cache = provider.GetRequiredService<ICacheService>();
+        Assert.Null(await cache.GetAsync<string>("set-after-miss"));
+
+        await cache.SetAsync("set-after-miss", "written");
+
+        Assert.Equal("written", await cache.GetAsync<string>("set-after-miss"));
+    }
+
+    [Fact]
     public async Task GetOrCreateAsync_InvokesFactoryOnceForRepeatedCalls()
     {
         using var provider = CreateServiceProvider();
