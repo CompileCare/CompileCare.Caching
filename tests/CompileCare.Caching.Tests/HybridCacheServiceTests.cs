@@ -115,7 +115,7 @@ public sealed class HybridCacheServiceTests
     [Fact]
     public void AddCompileCareCaching_RejectsRedisWithoutConnectionString()
     {
-        Assert.Throws<InvalidOperationException>(() =>
+        Assert.Throws<OptionsValidationException>(() =>
             CreateServiceProvider(new Dictionary<string, string?>
             {
                 ["CacheSettings:UseRedis"] = "true",
@@ -126,14 +126,12 @@ public sealed class HybridCacheServiceTests
     [Fact]
     public void AddCompileCareCaching_RejectsInvalidExpirationConfiguration()
     {
-        using var provider = CreateServiceProvider(new Dictionary<string, string?>
-        {
-            ["CacheSettings:DefaultExpirationSeconds"] = "0",
-            ["CacheSettings:LocalCacheExpirationSeconds"] = "1"
-        });
-
-        Assert.Throws<OptionsValidationException>(
-            () => provider.GetRequiredService<ICacheService>());
+        Assert.Throws<OptionsValidationException>(() =>
+            CreateServiceProvider(new Dictionary<string, string?>
+            {
+                ["CacheSettings:DefaultExpirationSeconds"] = "0",
+                ["CacheSettings:LocalCacheExpirationSeconds"] = "1"
+            }));
     }
 
     [Fact]
