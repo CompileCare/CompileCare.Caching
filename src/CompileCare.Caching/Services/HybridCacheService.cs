@@ -15,7 +15,7 @@ public sealed class HybridCacheService(
         ValidateKey(key);
         return hybridCache.GetOrCreateAsync<T>(
             BuildKey(key),
-            _ => ValueTask.FromResult<T?>(default),
+            async _ => default!,
             cancellationToken: cancellationToken);
     }
 
@@ -28,11 +28,8 @@ public sealed class HybridCacheService(
         ValidateKey(key);
         ValidateExpiration(expiration);
 
-        var options = new HybridCacheEntryOptions
-        {
-            Expiration = expiration ?? _settings.DefaultExpiration,
-            LocalCacheExpiration = _settings.LocalCacheExpiration
-        };
+        var effectiveExpiration = expiration ?? _settings.DefaultExpiration;
+        var options = CreateEntryOptions(effectiveExpiration);
 
         await hybridCache.SetAsync(BuildKey(key), value!, options, cancellationToken: cancellationToken);
     }
@@ -47,11 +44,8 @@ public sealed class HybridCacheService(
         ArgumentNullException.ThrowIfNull(factory);
         ValidateExpiration(expiration);
 
-        var options = new HybridCacheEntryOptions
-        {
-            Expiration = expiration ?? _settings.DefaultExpiration,
-            LocalCacheExpiration = _settings.LocalCacheExpiration
-        };
+        var effectiveExpiration = expiration ?? _settings.DefaultExpiration;
+        var options = CreateEntryOptions(effectiveExpiration);
 
         return hybridCache.GetOrCreateAsync<object?, T>(
             BuildKey(key),
@@ -61,11 +55,20 @@ public sealed class HybridCacheService(
             cancellationToken: cancellationToken);
     }
 
-    public Task RemoveAsync(string key, CancellationToken cancellationToken = default)
+    public async Task RemoveAsync(string key, CancellationToken cancellationToken = default)
     {
         ValidateKey(key);
-        return hybridCache.RemoveAsync(BuildKey(key), cancellationToken);
+        await hybridCache.RemoveAsync(BuildKey(key), cancellationToken);
     }
+
+    private HybridCacheEntryOptions CreateEntryOptions(TimeSpan expiration) =>
+        new()
+        {
+            Expiration = expiration,
+            LocalCacheExpiration = expiration < _settings.LocalCacheExpiration
+                ? expiration
+                : _settings.LocalCacheExpiration
+        };
 
     private string BuildKey(string key) => $"{_settings.KeyPrefix}:{key}";
 
