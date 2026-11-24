@@ -1,19 +1,17 @@
-﻿namespace CompileCare.Caching.Abstractions
+namespace CompileCare.Caching.Abstractions;
+
+/// <summary>Shared cache operations. Keys must be explicitly namespaced using CacheKeyBuilder.</summary>
+public interface ICacheService
 {
-    public interface ICacheService
-    {
+    Task<T?> GetAsync<T>(string key, CancellationToken cancellationToken = default);
 
-        Task<T?> GetAsync<T>(string key, CancellationToken token = default);
+    Task SetAsync<T>(string key, T value, TimeSpan? expiration = null, CancellationToken cancellationToken = default);
 
-        Task SetAsync<T>(string key, T value, TimeSpan? expiration = null, CancellationToken token = default);
+    Task<T> GetOrCreateAsync<T>(
+        string key,
+        Func<CancellationToken, Task<T>> factory,
+        TimeSpan? expiration = null,
+        CancellationToken cancellationToken = default);
 
-        Task<T> GetOrCreateAsync<T>(
-            string key,
-            Func<CancellationToken, Task<T>> factory,
-            TimeSpan? expiration = null,
-            CancellationToken token = default);
-
-        Task RemoveAsync(string key, CancellationToken token = default);
-
-    }
+    Task RemoveAsync(string key, CancellationToken cancellationToken = default);
 }
