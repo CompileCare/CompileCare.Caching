@@ -2,6 +2,7 @@ using CompileCare.Caching.Abstractions;
 using CompileCare.Caching.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Xunit;
 
 namespace CompileCare.Caching.Tests;
@@ -90,26 +91,24 @@ public sealed class HybridCacheServiceTests
     }
 
     [Fact]
-    public async Task GetOrCreateAsync_RejectsNullFactory()
+    public void GetOrCreateAsync_RejectsNullFactory()
     {
         using var provider = CreateServiceProvider();
         var cache = provider.GetRequiredService<ICacheService>();
 
-        await Assert.ThrowsAsync<ArgumentNullException>(
+        Assert.Throws<ArgumentNullException>(
             () => cache.GetOrCreateAsync<string>("invalid", null!));
     }
 
     [Fact]
     public void AddCompileCareCaching_RejectsRedisWithoutConnectionString()
     {
-        using var provider = CreateServiceProvider(new Dictionary<string, string?>
-        {
-            ["CacheSettings:UseRedis"] = "true",
-            ["CacheSettings:RedisConnection"] = ""
-        });
-
-        Assert.Throws<InvalidOperationException>(
-            () => provider.GetRequiredService<ICacheService>());
+        Assert.Throws<InvalidOperationException>(() =>
+            CreateServiceProvider(new Dictionary<string, string?>
+            {
+                ["CacheSettings:UseRedis"] = "true",
+                ["CacheSettings:RedisConnection"] = ""
+            }));
     }
 
     [Fact]
