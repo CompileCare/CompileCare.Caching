@@ -8,20 +8,11 @@ public sealed class CacheSettings
     public bool UseRedis { get; set; }
     public string? RedisConnection { get; set; }
     public string KeyPrefix { get; set; } = "compilecare";
-    public TimeSpan DefaultExpiration { get; set; } = TimeSpan.FromMinutes(5);
-    public TimeSpan LocalCacheExpiration { get; set; } = TimeSpan.FromMinutes(2);
+    public int DefaultExpirationSeconds { get; set; } = 300;
+    public int LocalCacheExpirationSeconds { get; set; } = 120;
 
-    public int DefaultExpirationSeconds
-    {
-        get => (int)DefaultExpiration.TotalSeconds;
-        set => DefaultExpiration = TimeSpan.FromSeconds(value);
-    }
-
-    public int LocalCacheExpirationSeconds
-    {
-        get => (int)LocalCacheExpiration.TotalSeconds;
-        set => LocalCacheExpiration = TimeSpan.FromSeconds(value);
-    }
+    public TimeSpan DefaultExpiration => TimeSpan.FromSeconds(DefaultExpirationSeconds);
+    public TimeSpan LocalCacheExpiration => TimeSpan.FromSeconds(LocalCacheExpirationSeconds);
 
     internal static bool IsValidKeyPrefix(string? prefix)
     {
