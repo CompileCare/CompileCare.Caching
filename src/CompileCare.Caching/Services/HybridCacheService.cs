@@ -10,10 +10,10 @@ public sealed class HybridCacheService(
 {
     private readonly CacheSettings _settings = settings.Value;
 
-    public Task<T?> GetAsync<T>(string key, CancellationToken cancellationToken = default)
+    public async Task<T?> GetAsync<T>(string key, CancellationToken cancellationToken = default)
     {
         ValidateKey(key);
-        return hybridCache.GetOrCreateAsync<T>(
+        return await hybridCache.GetOrCreateAsync<T>(
             BuildKey(key),
             async _ => default!,
             cancellationToken: cancellationToken);
@@ -34,7 +34,7 @@ public sealed class HybridCacheService(
         await hybridCache.SetAsync(BuildKey(key), value!, options, cancellationToken: cancellationToken);
     }
 
-    public Task<T> GetOrCreateAsync<T>(
+    public async Task<T> GetOrCreateAsync<T>(
         string key,
         Func<CancellationToken, Task<T>> factory,
         TimeSpan? expiration = null,
@@ -47,7 +47,7 @@ public sealed class HybridCacheService(
         var effectiveExpiration = expiration ?? _settings.DefaultExpiration;
         var options = CreateEntryOptions(effectiveExpiration);
 
-        return hybridCache.GetOrCreateAsync<object?, T>(
+        return await hybridCache.GetOrCreateAsync<object?, T>(
             BuildKey(key),
             state: null,
             async (_, ct) => await factory(ct),
