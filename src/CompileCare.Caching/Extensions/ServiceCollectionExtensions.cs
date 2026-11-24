@@ -17,26 +17,19 @@ public static class ServiceCollectionExtensions
         ArgumentNullException.ThrowIfNull(configuration);
 
         var section = configuration.GetSection(CacheSettings.SectionName);
+        var settings = section.Get<CacheSettings>() ?? new CacheSettings();
+        var validationErrors = CacheSettings.GetValidationErrors(settings);
+        if (validationErrors.Count > 0)
+            throw new OptionsValidationException(nameof(CacheSettings), typeof(CacheSettings), validationErrors);
+
         services.AddOptions<CacheSettings>()
             .Bind(section)
-            .Validate(settings => settings.DefaultExpiration > TimeSpan.Zero,
-                "Cache default expiration must be positive.")
-            .Validate(settings => settings.LocalCacheExpiration > TimeSpan.Zero,
-                "Cache local expiration must be positive.")
-            .Validate(settings => settings.LocalCacheExpiration <= settings.DefaultExpiration,
-                "Local cache expiration cannot exceed distributed cache expiration.")
-            .Validate(settings => !settings.UseRedis || !string.IsNullOrWhiteSpace(settings.RedisConnection),
-                "RedisConnection is required when UseRedis is enabled.")
-            .Validate(settings => CacheSettings.IsValidKeyPrefix(settings.KeyPrefix),
-                "Cache key prefix must contain 1-64 ASCII letters, digits, dots, underscores or hyphens.")
+            .Validate(settings => CacheSettings.GetValidationErrors(settings).Count == 0,
+                "CacheSettings configuration is invalid.")
             .ValidateOnStart();
 
-        var settings = section.Get<CacheSettings>() ?? new CacheSettings();
         if (settings.UseRedis)
         {
-            if (string.IsNullOrWhiteSpace(settings.RedisConnection))
-                throw new InvalidOperationException("RedisConnection is required when UseRedis is enabled.");
-
             services.AddStackExchangeRedisCache(options =>
                 options.Configuration = settings.RedisConnection);
         }
