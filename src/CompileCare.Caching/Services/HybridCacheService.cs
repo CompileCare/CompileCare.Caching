@@ -88,7 +88,7 @@ public sealed class HybridCacheService(
 
     private static void ValidateExpiration(TimeSpan? expiration)
     {
-        if (expiration is <= TimeSpan.Zero)
+        if (expiration.HasValue && expiration.Value <= TimeSpan.Zero)
             throw new ArgumentOutOfRangeException(nameof(expiration), "Cache expiration must be positive.");
     }
 }
