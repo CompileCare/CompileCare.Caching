@@ -13,9 +13,16 @@ public sealed class HybridCacheService(
     public async Task<T?> GetAsync<T>(string key, CancellationToken cancellationToken = default)
     {
         ValidateKey(key);
+        var negativeCacheOptions = new HybridCacheEntryOptions
+        {
+            Expiration = TimeSpan.FromSeconds(1),
+            LocalCacheExpiration = TimeSpan.FromSeconds(1)
+        };
+
         return await hybridCache.GetOrCreateAsync<T>(
             BuildKey(key),
             async _ => default!,
+            negativeCacheOptions,
             cancellationToken: cancellationToken);
     }
 
