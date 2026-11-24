@@ -8,27 +8,34 @@ namespace CompileCare.Caching.Tests;
 
 public sealed class HybridCacheServiceTests
 {
-    private static ICacheService CreateCacheService()
+    private static ServiceProvider CreateServiceProvider(Dictionary<string, string?>? overrides = null)
     {
+        var values = new Dictionary<string, string?>
+        {
+            ["CacheSettings:UseRedis"] = "false",
+            ["CacheSettings:DefaultExpirationSeconds"] = "30",
+            ["CacheSettings:LocalCacheExpirationSeconds"] = "10",
+            ["CacheSettings:KeyPrefix"] = "test"
+        };
+
+        if (overrides is not null)
+            foreach (var item in overrides)
+                values[item.Key] = item.Value;
+
         var configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string?>
-            {
-                ["CacheSettings:UseRedis"] = "false",
-                ["CacheSettings:DefaultExpirationSeconds"] = "30",
-                ["CacheSettings:LocalCacheExpirationSeconds"] = "10",
-                ["CacheSettings:KeyPrefix"] = "test"
-            })
+            .AddInMemoryCollection(values)
             .Build();
 
         var services = new ServiceCollection();
         services.AddCompileCareCaching(configuration);
-        return services.BuildServiceProvider().GetRequiredService<ICacheService>();
+        return services.BuildServiceProvider();
     }
 
     [Fact]
     public async Task SetAndGet_ReturnsStoredValue()
     {
-        var cache = CreateCacheService();
+        using var provider = CreateServiceProvider();
+        var cache = provider.GetRequiredService<ICacheService>();
         await cache.SetAsync("sample", "value");
 
         Assert.Equal("value", await cache.GetAsync<string>("sample"));
@@ -37,7 +44,8 @@ public sealed class HybridCacheServiceTests
     [Fact]
     public async Task GetAsync_ReturnsDefault_WhenKeyDoesNotExist()
     {
-        var cache = CreateCacheService();
+        using var provider = CreateServiceProvider();
+        var cache = provider.GetRequiredService<ICacheService>();
 
         Assert.Null(await cache.GetAsync<string>("missing"));
     }
@@ -45,10 +53,11 @@ public sealed class HybridCacheServiceTests
     [Fact]
     public async Task GetOrCreateAsync_InvokesFactoryOnceForRepeatedCalls()
     {
-        var cache = CreateCacheService();
+        using var provider = CreateServiceProvider();
+        var cache = provider.GetRequiredService<ICacheService>();
         var factoryCalls = 0;
 
-        Task<string> Factory(CancellationToken _) 
+        Task<string> Factory(CancellationToken _)
         {
             Interlocked.Increment(ref factoryCalls);
             return Task.FromResult("created");
@@ -62,7 +71,8 @@ public sealed class HybridCacheServiceTests
     [Fact]
     public async Task RemoveAsync_DeletesEntry()
     {
-        var cache = CreateCacheService();
+        using var provider = CreateServiceProvider();
+        var cache = provider.GetRequiredService<ICacheService>();
         await cache.SetAsync("remove", "value");
         await cache.RemoveAsync("remove");
 
@@ -71,8 +81,49 @@ public sealed class HybridCacheServiceTests
 
     [Fact]
     public async Task SetAsync_RejectsNonPositiveExpiration()
-        => await Assert.ThrowsAsync<ArgumentOutOfRangeException>(
-            () => CreateCacheService().SetAsync("invalid", "value", TimeSpan.Zero));
+    {
+        using var provider = CreateServiceProvider();
+        var cache = provider.GetRequiredService<ICacheService>();
+
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(
+            () => cache.SetAsync("invalid", "value", TimeSpan.Zero));
+    }
+
+    [Fact]
+    public async Task GetOrCreateAsync_RejectsNullFactory()
+    {
+        using var provider = CreateServiceProvider();
+        var cache = provider.GetRequiredService<ICacheService>();
+
+        await Assert.ThrowsAsync<ArgumentNullException>(
+            () => cache.GetOrCreateAsync<string>("invalid", null!));
+    }
+
+    [Fact]
+    public void AddCompileCareCaching_RejectsRedisWithoutConnectionString()
+    {
+        using var provider = CreateServiceProvider(new Dictionary<string, string?>
+        {
+            ["CacheSettings:UseRedis"] = "true",
+            ["CacheSettings:RedisConnection"] = ""
+        });
+
+        Assert.Throws<InvalidOperationException>(
+            () => provider.GetRequiredService<ICacheService>());
+    }
+
+    [Fact]
+    public void AddCompileCareCaching_RejectsInvalidExpirationConfiguration()
+    {
+        using var provider = CreateServiceProvider(new Dictionary<string, string?>
+        {
+            ["CacheSettings:DefaultExpirationSeconds"] = "0",
+            ["CacheSettings:LocalCacheExpirationSeconds"] = "1"
+        });
+
+        Assert.Throws<OptionsValidationException>(
+            () => provider.GetRequiredService<ICacheService>());
+    }
 
     [Fact]
     public async Task CacheKeyBuilder_SeparatesTenantAndGlobalNamespaces()
