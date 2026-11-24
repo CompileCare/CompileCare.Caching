@@ -103,12 +103,12 @@ public sealed class HybridCacheServiceTests
     }
 
     [Fact]
-    public void GetOrCreateAsync_RejectsNullFactory()
+    public async Task GetOrCreateAsync_RejectsNullFactory()
     {
         using var provider = CreateServiceProvider();
         var cache = provider.GetRequiredService<ICacheService>();
 
-        Assert.Throws<ArgumentNullException>(
+        await Assert.ThrowsAsync<ArgumentNullException>(
             () => cache.GetOrCreateAsync<string>("invalid", null!));
     }
 
