@@ -49,6 +49,7 @@ Use `CacheKeyBuilder.ForTenant` for tenant-owned data and `ForGlobal` only for i
 - `DefaultExpirationSeconds` controls the default distributed expiration.
 - `LocalCacheExpirationSeconds` controls the in-process copy and must be positive and no longer than the default expiration.
 - Per-operation expiration overrides the default and must be positive.
+- A missing-value lookup uses a short one-second negative-cache window to avoid long-lived cached misses.
 
 ## Local development
 
