@@ -175,13 +175,16 @@ public sealed class HybridCacheServiceTests
 
         var tenantAKey = CacheKeyBuilder.ForTenant(tenantA, "patient-search");
         var tenantBKey = CacheKeyBuilder.ForTenant(tenantB, "patient-search");
+        var globalKey = CacheKeyBuilder.ForGlobal("patient-search");
 
         await cache.SetAsync(tenantAKey, "tenant-a-patients");
         await cache.SetAsync(tenantBKey, "tenant-b-patients");
+        await cache.SetAsync(globalKey, "global-patient-search");
         await cache.RemoveAsync(tenantAKey);
 
         Assert.Null(await cache.GetAsync<string>(tenantAKey));
         Assert.Equal("tenant-b-patients", await cache.GetAsync<string>(tenantBKey));
+        Assert.Equal("global-patient-search", await cache.GetAsync<string>(globalKey));
     }
 
     [Fact]
