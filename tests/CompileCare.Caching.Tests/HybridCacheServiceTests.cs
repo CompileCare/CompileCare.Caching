@@ -135,7 +135,7 @@ public sealed class HybridCacheServiceTests
     }
 
     [Fact]
-    public async Task CacheKeyBuilder_SeparatesTenantAndGlobalNamespaces()
+    public void CacheKeyBuilder_SeparatesTenantAndGlobalNamespaces()
     {
         var tenant = Guid.Parse("e4dfc2d1-808f-4a37-8e92-98a2dff25c51");
 
