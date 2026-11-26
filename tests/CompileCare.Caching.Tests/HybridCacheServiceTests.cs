@@ -135,13 +135,56 @@ public sealed class HybridCacheServiceTests
     }
 
     [Fact]
-    public async Task CacheKeyBuilder_SeparatesTenantAndGlobalNamespaces()
+    public void CacheKeyBuilder_SeparatesTenantAndGlobalNamespaces()
     {
         var tenant = Guid.Parse("e4dfc2d1-808f-4a37-8e92-98a2dff25c51");
 
         Assert.Equal($"tenant:{tenant:N}:catalog", CacheKeyBuilder.ForTenant(tenant, "catalog"));
         Assert.Equal("global:catalog", CacheKeyBuilder.ForGlobal("catalog"));
         Assert.NotEqual(CacheKeyBuilder.ForTenant(tenant, "catalog"), CacheKeyBuilder.ForGlobal("catalog"));
+    }
+
+    [Fact]
+    public async Task TenantNamespacedKeys_KeepValuesIsolatedAcrossTenantsAndGlobalScope()
+    {
+        using var provider = CreateServiceProvider();
+        var cache = provider.GetRequiredService<ICacheService>();
+        var tenantA = Guid.Parse("e4dfc2d1-808f-4a37-8e92-98a2dff25c51");
+        var tenantB = Guid.Parse("b4d8f03f-2bfa-4e49-9990-e2bd682fcaf2");
+
+        var tenantAKey = CacheKeyBuilder.ForTenant(tenantA, "catalog");
+        var tenantBKey = CacheKeyBuilder.ForTenant(tenantB, "catalog");
+        var globalKey = CacheKeyBuilder.ForGlobal("catalog");
+
+        await cache.SetAsync(tenantAKey, "tenant-a-value");
+        await cache.SetAsync(tenantBKey, "tenant-b-value");
+        await cache.SetAsync(globalKey, "global-value");
+
+        Assert.Equal("tenant-a-value", await cache.GetAsync<string>(tenantAKey));
+        Assert.Equal("tenant-b-value", await cache.GetAsync<string>(tenantBKey));
+        Assert.Equal("global-value", await cache.GetAsync<string>(globalKey));
+    }
+
+    [Fact]
+    public async Task RemovingOneTenantKey_DoesNotRemoveAnotherTenantsValue()
+    {
+        using var provider = CreateServiceProvider();
+        var cache = provider.GetRequiredService<ICacheService>();
+        var tenantA = Guid.Parse("e4dfc2d1-808f-4a37-8e92-98a2dff25c51");
+        var tenantB = Guid.Parse("b4d8f03f-2bfa-4e49-9990-e2bd682fcaf2");
+
+        var tenantAKey = CacheKeyBuilder.ForTenant(tenantA, "patient-search");
+        var tenantBKey = CacheKeyBuilder.ForTenant(tenantB, "patient-search");
+        var globalKey = CacheKeyBuilder.ForGlobal("patient-search");
+
+        await cache.SetAsync(tenantAKey, "tenant-a-patients");
+        await cache.SetAsync(tenantBKey, "tenant-b-patients");
+        await cache.SetAsync(globalKey, "global-patient-search");
+        await cache.RemoveAsync(tenantAKey);
+
+        Assert.Null(await cache.GetAsync<string>(tenantAKey));
+        Assert.Equal("tenant-b-patients", await cache.GetAsync<string>(tenantBKey));
+        Assert.Equal("global-patient-search", await cache.GetAsync<string>(globalKey));
     }
 
     [Fact]
