@@ -1,6 +1,6 @@
 # HeapCare Caching
 
-> **Migration status:** HeapCare namespaces, project paths and NuGet package ID are migrated and the package is published to GitHub Packages. The GitHub repository slug and package owner namespace remain `CompileCare` until the administrative rename is completed. No domain, DNS, email or deployment origin is assumed.
+> **Migration status:** HeapCare namespaces, project paths and NuGet package ID are migrated and the package is published to GitHub Packages. The GitHub organization and repository are now under `HeapCare`; verify package read grants for all consuming repositories after the organization rename. No domain, DNS, email or deployment origin is assumed.
 
 Reusable .NET 10 HybridCache infrastructure for HeapCare services.
 
