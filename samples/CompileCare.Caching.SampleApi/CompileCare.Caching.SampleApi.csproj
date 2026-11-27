@@ -11,6 +11,6 @@
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.22.1" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\CompileCare.Caching\CompileCare.Caching.csproj" />
+    <ProjectReference Include="..\..\src\HeapCare.Caching\HeapCare.Caching.csproj" />
   </ItemGroup>
 </Project>
