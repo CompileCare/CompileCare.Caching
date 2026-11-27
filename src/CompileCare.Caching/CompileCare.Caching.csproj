@@ -3,13 +3,13 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <PackageId>CompileCare.Caching</PackageId>
+    <PackageId>HeapCare.Caching</PackageId>
     <Version>0.2.0</Version>
-    <Authors>CompileCare</Authors>
-    <Company>CompileCare</Company>
-    <Description>Shared HybridCache infrastructure for CompileCare services.</Description>
-    <RepositoryUrl>https://github.com/CompileCare/CompileCare.Caching</RepositoryUrl>
-    <PackageTags>compilecare;caching;hybridcache;redis</PackageTags>
+    <Authors>HeapCare</Authors>
+    <Company>HeapCare</Company>
+    <Description>Shared HybridCache infrastructure for HeapCare services.</Description>
+    <RepositoryUrl>https://github.com/HeapCare/HeapCare.Caching</RepositoryUrl>
+    <PackageTags>heapcare;caching;hybridcache;redis</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <IsPackable>true</IsPackable>
   </PropertyGroup>
