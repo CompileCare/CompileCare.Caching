@@ -2,7 +2,7 @@ services:
   api:
     build:
       context: .
-      dockerfile: samples/CompileCare.Caching.SampleApi/Dockerfile
+      dockerfile: samples/HeapCare.Caching.SampleApi/Dockerfile
     ports:
       - "5000:8080"
     depends_on:
@@ -13,7 +13,7 @@ services:
       CacheSettings__UseRedis: "true"
       CacheSettings__RedisConnection: "redis:6379"
     volumes:
-      - ./samples/CompileCare.Caching.SampleApi/appsettings.json:/app/appsettings.json
+      - ./samples/HeapCare.Caching.SampleApi/appsettings.json:/app/appsettings.json
 
   redis:
     image: redis:7.2

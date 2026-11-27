@@ -18,10 +18,10 @@ jobs:
         with:
           dotnet-version: 10.0.x
       - name: Restore
-        run: dotnet restore CompileCare.Caching.sln
+        run: dotnet restore HeapCare.Caching.sln
       - name: Build
-        run: dotnet build CompileCare.Caching.sln --configuration Release --no-restore
+        run: dotnet build HeapCare.Caching.sln --configuration Release --no-restore
       - name: Test
-        run: dotnet test CompileCare.Caching.sln --configuration Release --no-build
+        run: dotnet test HeapCare.Caching.sln --configuration Release --no-build
       - name: Pack
-        run: dotnet pack src/CompileCare.Caching/CompileCare.Caching.csproj --configuration Release --no-build --output artifacts
+        run: dotnet pack src/HeapCare.Caching/HeapCare.Caching.csproj --configuration Release --no-build --output artifacts

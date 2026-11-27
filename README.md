@@ -1,6 +1,8 @@
-# CompileCare.Caching
+# HeapCare Caching
 
-Reusable .NET 10 HybridCache infrastructure for CompileCare services.
+> **Brand migration status:** HeapCare namespaces, project paths and the NuGet package ID are migrated in this branch. The GitHub repository remains `CompileCare/CompileCare.Caching` until the organization/repository rename is completed. No domain, DNS, email or deployment origin is assumed.
+
+Reusable .NET 10 HybridCache infrastructure for HeapCare services.
 
 ## Features
 
@@ -14,7 +16,7 @@ Reusable .NET 10 HybridCache infrastructure for CompileCare services.
 ## Registration
 
 ```csharp
-builder.Services.AddCompileCareCaching(builder.Configuration);
+builder.Services.AddHeapCareCaching(builder.Configuration);
 ```
 
 Configuration:
@@ -24,7 +26,7 @@ Configuration:
   "CacheSettings": {
     "UseRedis": false,
     "RedisConnection": "",
-    "KeyPrefix": "compilecare",
+    "KeyPrefix": "heapcare",
     "DefaultExpirationSeconds": 300,
     "LocalCacheExpirationSeconds": 120
   }
@@ -62,7 +64,7 @@ The local Redis container is for development only. Do not expose Redis publicly 
 ## Tests
 
 ```bash
-dotnet test CompileCare.Caching.sln
+dotnet test HeapCare.Caching.sln
 ```
 
 ## Current scope

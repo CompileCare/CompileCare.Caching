@@ -1,8 +1,8 @@
-using CompileCare.Caching.Abstractions;
+using HeapCare.Caching.Abstractions;
 using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.Options;
 
-namespace CompileCare.Caching.Services;
+namespace HeapCare.Caching.Services;
 
 public sealed class HybridCacheService(
     HybridCache hybridCache,

@@ -1,11 +1,11 @@
-using CompileCare.Caching.Abstractions;
-using CompileCare.Caching.Extensions;
+using HeapCare.Caching.Abstractions;
+using HeapCare.Caching.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Xunit;
 
-namespace CompileCare.Caching.Tests;
+namespace HeapCare.Caching.Tests;
 
 public sealed class HybridCacheServiceTests
 {
@@ -28,7 +28,7 @@ public sealed class HybridCacheServiceTests
             .Build();
 
         var services = new ServiceCollection();
-        services.AddCompileCareCaching(configuration);
+        services.AddHeapCareCaching(configuration);
         return services.BuildServiceProvider();
     }
 
@@ -113,7 +113,7 @@ public sealed class HybridCacheServiceTests
     }
 
     [Fact]
-    public void AddCompileCareCaching_RejectsRedisWithoutConnectionString()
+    public void AddHeapCareCaching_RejectsRedisWithoutConnectionString()
     {
         Assert.Throws<OptionsValidationException>(() =>
             CreateServiceProvider(new Dictionary<string, string?>
@@ -124,7 +124,7 @@ public sealed class HybridCacheServiceTests
     }
 
     [Fact]
-    public void AddCompileCareCaching_RejectsInvalidExpirationConfiguration()
+    public void AddHeapCareCaching_RejectsInvalidExpirationConfiguration()
     {
         Assert.Throws<OptionsValidationException>(() =>
             CreateServiceProvider(new Dictionary<string, string?>

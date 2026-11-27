@@ -13,6 +13,6 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="../../src/CompileCare.Caching/CompileCare.Caching.csproj" />
+    <ProjectReference Include="../../src/HeapCare.Caching/HeapCare.Caching.csproj" />
   </ItemGroup>
 </Project>

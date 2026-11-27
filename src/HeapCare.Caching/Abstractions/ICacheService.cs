@@ -1,4 +1,4 @@
-namespace CompileCare.Caching.Abstractions;
+namespace HeapCare.Caching.Abstractions;
 
 /// <summary>Shared cache operations. Keys must be explicitly namespaced using CacheKeyBuilder.</summary>
 public interface ICacheService

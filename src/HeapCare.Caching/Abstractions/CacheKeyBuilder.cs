@@ -1,4 +1,4 @@
-namespace CompileCare.Caching.Abstractions;
+namespace HeapCare.Caching.Abstractions;
 
 /// <summary>
 /// Creates explicit global or tenant-scoped cache keys. Tenant-owned data must use
