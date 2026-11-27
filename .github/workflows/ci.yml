@@ -42,4 +42,4 @@ jobs:
       - name: Pack HeapCare Caching
         run: dotnet pack src/HeapCare.Caching/HeapCare.Caching.csproj --configuration Release --output artifacts
       - name: Publish to GitHub Packages
-        run: dotnet nuget push "artifacts/*.nupkg" --source "https://nuget.pkg.github.com/CompileCare/index.json" --api-key "${{ secrets.GITHUB_TOKEN }}" --skip-duplicate
+        run: dotnet nuget push "artifacts/*.nupkg" --source "https://nuget.pkg.github.com/HeapCare/index.json" --api-key "${{ secrets.GITHUB_TOKEN }}" --skip-duplicate
