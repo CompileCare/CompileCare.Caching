@@ -1,9 +1,9 @@
-using CompileCare.Caching.Abstractions;
-using CompileCare.Caching.Extensions;
+using HeapCare.Caching.Abstractions;
+using HeapCare.Caching.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
-builder.Services.AddCompileCareCaching(builder.Configuration);
+builder.Services.AddHeapCareCaching(builder.Configuration);
 
 var app = builder.Build();
 if (app.Environment.IsDevelopment())
@@ -11,7 +11,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapGet("/", () => "CompileCare HybridCache Sample API running");
+app.MapGet("/", () => "HeapCare HybridCache Sample API running");
 
 app.MapGet("/forecast", async (
     HttpContext http,
