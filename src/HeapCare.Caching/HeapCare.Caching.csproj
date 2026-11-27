@@ -8,7 +8,7 @@
     <Authors>HeapCare</Authors>
     <Company>HeapCare</Company>
     <Description>Shared HybridCache infrastructure for HeapCare services.</Description>
-    <RepositoryUrl>https://github.com/HeapCare/HeapCare.Caching</RepositoryUrl>
+    <RepositoryUrl>https://github.com/CompileCare/CompileCare.Caching</RepositoryUrl>
     <PackageTags>heapcare;caching;hybridcache;redis</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <IsPackable>true</IsPackable>
