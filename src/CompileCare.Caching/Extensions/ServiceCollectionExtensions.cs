@@ -1,15 +1,15 @@
-using CompileCare.Caching.Abstractions;
-using CompileCare.Caching.Services;
+using HeapCare.Caching.Abstractions;
+using HeapCare.Caching.Services;
 using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
-namespace CompileCare.Caching.Extensions;
+namespace HeapCare.Caching.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddCompileCareCaching(
+    public static IServiceCollection AddHeapCareCaching(
         this IServiceCollection services,
         IConfiguration configuration)
     {
