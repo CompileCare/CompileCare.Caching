@@ -1,13 +1,13 @@
-namespace CompileCare.Caching;
+namespace HeapCare.Caching;
 
-/// <summary>Configuration for CompileCare HybridCache.</summary>
+/// <summary>Configuration for HeapCare HybridCache.</summary>
 public sealed class CacheSettings
 {
     public const string SectionName = "CacheSettings";
 
     public bool UseRedis { get; set; }
     public string? RedisConnection { get; set; }
-    public string KeyPrefix { get; set; } = "compilecare";
+    public string KeyPrefix { get; set; } = "heapcare";
     public int DefaultExpirationSeconds { get; set; } = 300;
     public int LocalCacheExpirationSeconds { get; set; } = 120;
 
